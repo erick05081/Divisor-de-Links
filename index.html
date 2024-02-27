@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Divisão de Links</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="conteudo-principal">
+    <h1>Divisor de Links em Excel</h1>
+    <br>
+    <label for="batchSize" class="elementos">Quantidade de links por planilha:</label>
+    <select id="batchSize" class="form-select form-select-sm" aria-label="Small select example">
+      <option value="100">100</option>
+      <option value="200" selected>200</option>
+      <option value="500">500</option>
+      <option value="1000">1000</option>
+    </select>
+
+    <br>
+
+    <label for="customFileName" class="elementos">Nome personalizado para os arquivos:</label>
+    <br>
+    <input type="text" id="customFileName" placeholder="Nomeie o arquivo" class="form-control">
+
+    <br><br>
+
+    <textarea id="linksInput" placeholder="Cole seus links aqui..." rows="10" cols="50" class="form-control"></textarea><br>
+    <button onclick="processLinks()" type="button" class="btn btn-primary">Dividir em lotes</button>
+
+    <p id="totalFilesMessage"></p>
+    <div id="downloadLinks"></div>
+
+  </div>
+
+  <script>
+    async function processLinks() {
+      const linksInput = document.getElementById('linksInput').value.split('\n');
+      const batchSize = parseInt(document.getElementById('batchSize').value, 10);
+      const totalLinks = linksInput.length;
+      const customFileName = document.getElementById('customFileName').value.trim() || 'links_batch';
+
+      const downloadLinksDiv = document.getElementById('downloadLinks');
+      downloadLinksDiv.innerHTML = '';
+
+      if (!linksInput || linksInput.every(link => link.trim() === '')) {
+        alert("Por favor, insira links antes de dividir em lotes.");
+        return;
+      }
+
+      // Atualizar o aviso
+      document.getElementById('totalFilesMessage').innerText = `Serão baixados ${Math.ceil(totalLinks / batchSize)} arquivo(s) no total.`;
+
+      let batchNumber = 1;
+
+      for (let i = 0; i < totalLinks; i += batchSize) {
+        const batch = linksInput.slice(i, i + batchSize);
+        const fileName = `${customFileName}_${batchNumber}.xlsx`;
+
+        await createExcelFile(batch, fileName, batchNumber);
+        batchNumber++;
+
+        // Aguardar 2 segundos entre os downloads
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+    }
+
+    async function createExcelFile(linksBatch, fileName, batchNumber) {
+      return new Promise(resolve => {
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Lote');
+
+        // Adicionar estilo negrito à célula A1
+        const cellA1 = worksheet.getCell('A1');
+        cellA1.value = 'Listing Infringement Link';
+        cellA1.font = { bold: true };
+
+        // Adicionar links ao restante das células
+        linksBatch.forEach((link, index) => {
+          worksheet.addRow([link]);
+        });
+
+        // Converter o arquivo para uma blob
+        workbook.xlsx.writeBuffer()
+          .then(buffer => {
+            const blob = new Blob([buffer], { type: 'application/octet-stream' });
+
+            // Salvar o arquivo usando FileSaver.js
+            saveAs(blob, fileName);
+
+            resolve();
+          });
+      });
+    }
+
+    function downloadAll() {
+      const downloadLinks = document.querySelectorAll('#downloadLinks a');
+
+      // Adiar os downloads para garantir que todos os lotes sejam processados
+      downloadLinks.forEach((link, index) => {
+        setTimeout(() => {
+          link.click();
+        }, index * 2000); // Aguardar 2 segundos entre cada download
+      });
+    }
+  </script>
+
+</body>
+</html>
