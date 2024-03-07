@@ -19,3 +19,12 @@ button{
     margin: 5px;
     width: 100%;
 }
+
+.progress {
+    margin-top: 10px;
+  }
+
+  #progressBar {
+    transition: width 0.3s ease-in-out;
+    background-color: #28a745 !important;
+  }
