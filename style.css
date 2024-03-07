@@ -1,0 +1,30 @@
+.conteudo-principal{
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border: 2px solid #c5c5c5; /* Adicione borda para visualização */
+        border-radius: 15px;
+        padding: 20px; /* Adicione algum preenchimento para espaçamento interno */
+        align-items: center;
+        text-align: center;
+        background-color: #eeeeee;
+}
+
+.elementos{
+    padding: 10px;
+}
+
+button{
+    margin: 5px;
+    width: 100%;
+}
+
+.progress {
+    margin-top: 10px;
+  }
+
+  #progressBar {
+    transition: width 0.3s ease-in-out;
+    background-color: #28a745 !important;
+  }
